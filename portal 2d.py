@@ -146,8 +146,8 @@ class Shoot():
         a = abs(self.vel_y)
         b = abs(self.vel_x)
         collide = False
-
-        while a > 0 or b > 0:
+        finished = False
+        while (not finished) and (a > 0 or b > 0):
 
             if self.vel_y > 0 and a > 0:
                 self.y += 0.1
@@ -162,39 +162,33 @@ class Shoot():
             if self.vel_x < 0 and b > 0:
                 self.x -= 0.1
                 b -= 0.1
-        pygame.draw.rect(window, self.color, self.hitbox)
-        for wall in walls:
-            if self.hitbox.colliderect(wall):
 
-                if self.color == (0, 0, 255):
-                    blue_ball_status = "open"
-                    blue_portal.x = self.x
-                    blue_portal.y = self.y
-                    print(self.x, self.y)
-                    print(blue_portal.x, blue_portal.y)
-                    break
+            pygame.draw.rect(window, self.color, self.hitbox)
+            for wall in walls:
+                if self.hitbox.colliderect(wall):
+                    finished = True
 
-
-                if self.color == (255, 165, 0):
-                    orange_ball_status = "open"
-                    orange_portal.x = self.x
-                    orange_portal.y = self.y
-                    break
+                    if self.color == (0, 0, 255):
+                        blue_ball_status = "open"
+                        blue_portal.x = self.x
+                        blue_portal.y = self.y
+                        print(self.x, self.y)
+                        print(blue_portal.x, blue_portal.y)
 
 
+                    if self.color == (255, 165, 0):
+                        orange_ball_status = "open"
+                        orange_portal.x = self.x
+                        orange_portal.y = self.y
 
 
-
-
-
-
+pygame.init()
 
 player = Player((pygame.Rect(player_x, player_y, player_size_x, player_size_y)))
 
 
 
         #print(x, y)
-pygame.display.update()
 while True:
     mouse_x, mouse_y = pygame.mouse.get_pos()
     pressed_keys = pygame.key.get_pressed()
@@ -217,17 +211,16 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            exit(0)
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                blue_ball = Shoot(player.player.x, player.player.y, mouse_x, mouse_y, BLUE)
+                blue_ball_status = "fly"
 
-
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        if event.button == 1:
-            blue_ball = Shoot(player.player.x, player.player.y, mouse_x, mouse_y, BLUE)
-            blue_ball_status = "fly"
-
-        if event.button == 3:
-            orange_ball = Shoot(player.player.x, player.player.y, mouse_x, mouse_y, ORANGE)
-            orange_ball_status = "fly"
+            if event.button == 3:
+                orange_ball = Shoot(player.player.x, player.player.y, mouse_x, mouse_y, ORANGE)
+                orange_ball_status = "fly"
 
     # more boring display things
     window.fill(WHITE)
@@ -246,18 +239,11 @@ while True:
     if blue_ball_status == "open":
         pygame.draw.rect(window, BLUE, blue_portal)
 
-
     for wall in walls:
         pygame.draw.rect(window, BLACK, wall)
 
         if wall.colliderect(player.player):
             pygame.draw.rect(window, RED, wall)
 
-
-
     pygame.display.update()
     fpsClock.tick(FPS)
-
-
-
-
